@@ -1,0 +1,6 @@
+[package]
+name = "state-machine"
+version = "0.1.0"
+authors = ["Dmitriy Pogretskiy <dpogretskiy@gmail.com>"]
+
+[dependencies]
