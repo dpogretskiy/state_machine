@@ -1,5 +1,6 @@
-#![feature(type_ascription)]
+// #![feature(type_ascription)]
 
+#[macro_export]
 macro_rules! state_machine {
     ( $sm: ident; $sn: ident; $($n: ident: $t: ty),* ) => {
         pub enum Trans {
@@ -60,7 +61,7 @@ macro_rules! state_machine {
             ) {
                 if !self.running {
                     let state = self.state_stack.last_mut().unwrap();
-                    state.on_start($($n: $t),*);
+                    state.on_start($($n),*);
                     self.running = true;
                 }
             }
@@ -71,11 +72,11 @@ macro_rules! state_machine {
             ) {
                 if self.running {
                     let trans = match self.state_stack.last_mut() {
-                        Some(state) => state.handle_events($($n: $t),*),
+                        Some(state) => state.handle_events($($n),*),
                         None => Trans::None,
                     };
 
-                    self.transition(trans, $($n: $t),*);
+                    self.transition(trans, $($n),*);
                 }
             }
 
@@ -85,11 +86,11 @@ macro_rules! state_machine {
             ) {
                 if self.running {
                     let trans = match self.state_stack.last_mut() {
-                        Some(state) => state.fixed_update($($n: $t),*),
+                        Some(state) => state.fixed_update($($n),*),
                         None => Trans::None,
                     };
 
-                    self.transition(trans, $($n: $t),*);
+                    self.transition(trans, $($n),*);
                 }
             }
 
@@ -99,11 +100,11 @@ macro_rules! state_machine {
             ) {
                 if self.running {
                     let trans = match self.state_stack.last_mut() {
-                        Some(state) => state.update($($n: $t),*),
+                        Some(state) => state.update($($n),*),
                         None => Trans::None,
                     };
 
-                    self.transition(trans, $($n: $t),*);
+                    self.transition(trans, $($n),*);
                 }
             }
 
@@ -115,10 +116,10 @@ macro_rules! state_machine {
                 if self.running {
                     match request {
                         Trans::None => (),
-                        Trans::Pop => self.pop($($n: $t),*),
-                        Trans::Push(state) => self.push(state, $($n: $t),*),
-                        Trans::Switch(state) => self.switch(state, $($n: $t),*),
-                        Trans::Quit => self.stop($($n: $t),*),
+                        Trans::Pop => self.pop($($n),*),
+                        Trans::Push(state) => self.push(state, $($n),*),
+                        Trans::Switch(state) => self.switch(state, $($n),*),
+                        Trans::Quit => self.stop($($n),*),
                     }
                 }
             }
@@ -130,12 +131,12 @@ macro_rules! state_machine {
             ) {
                 if self.running {
                     if let Some(mut state) = self.state_stack.pop() {
-                        state.on_stop($($n: $t),*)
+                        state.on_stop($($n),*)
                     }
 
                     self.state_stack.push(state);
                     let state = self.state_stack.last_mut().unwrap();
-                    state.on_start($($n: $t),*);
+                    state.on_start($($n),*);
                 }
             }
 
@@ -146,12 +147,12 @@ macro_rules! state_machine {
             ) {
                 if self.running {
                     if let Some(state) = self.state_stack.last_mut() {
-                        state.on_pause($($n: $t),*);
+                        state.on_pause($($n),*);
                     }
 
                     self.state_stack.push(state);
                     let state = self.state_stack.last_mut().unwrap();
-                    state.on_start($($n: $t),*);
+                    state.on_start($($n),*);
                 }
             }
 
@@ -161,11 +162,11 @@ macro_rules! state_machine {
             ) {
                 if self.running {
                     if let Some(mut state) = self.state_stack.pop() {
-                        state.on_stop($($n: $t),*);
+                        state.on_stop($($n),*);
                     }
 
                     if let Some(state) = self.state_stack.last_mut() {
-                        state.on_resume($($n: $t),*);
+                        state.on_resume($($n),*);
                     } else {
                         self.running = false;
                     }
@@ -178,7 +179,7 @@ macro_rules! state_machine {
             ) {
                 if self.running {
                     while let Some(mut state) = self.state_stack.pop() {
-                        state.on_stop($($n: $t),*);
+                        state.on_stop($($n),*);
                     }
 
                     self.running = false;
@@ -188,9 +189,13 @@ macro_rules! state_machine {
     }
 }
 
+#[cfg(test)]
 state_machine!(TestStateMachine; TestState; _a: &mut isize, _b: isize);
 
+#[cfg(test)]
 pub struct Test;
+
+#[cfg(test)]
 impl TestState for Test {
     fn on_start(&mut self, a: &mut isize, b: isize) {
         *a += b;
