@@ -1,5 +1,11 @@
 [package]
 name = "pushdown-automaton-macro"
+description = "Macro generator for state machine, implementing pushdown automaton"
+repository = "https://github.com/dpogretskiy/state_machine"
+readme = "README.md"
+license = "MIT License"
+livense-file = "LICENSE"
+
 version = "0.1.0"
 authors = ["Dmitriy Pogretskiy <dpogretskiy@gmail.com>"]
 
